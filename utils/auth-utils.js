@@ -12,20 +12,11 @@ const serverConfig = {
   port: 443
 };
 const authConfig = {
-  accessKey: '',
-  secretKey: '',
-  contractId: '',
+  accessKey: process.env.ACCESS_KEY ,
+  secretKey: process.env.SECRET_KEY,
+  contractId: process.env.CONTRACT_ID,
 };
 
-/**
- * Generates a request signature.
- *
- * @param {string} path Path.
- * @param {string} secretKey Secret key.
- * @param {string} nonce Nonce.
- *
- * @returns {string} The request signature.
- */
 const generateSignature = (path, secretKey, nonce) => {
   const hmac = crypto.createHmac(signatureHMACAlgo, secretKey);
   hmac.update(nonce);

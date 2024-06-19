@@ -1,5 +1,5 @@
+require('dotenv').config();
 const https = require('https');
-
 const authUtils = require('./utils/auth-utils');
 
 const serverConfig = {
@@ -8,8 +8,8 @@ const serverConfig = {
  port: 443
 };
 const authConfig = {
- accessKey: '',
- secretKey: '',
+ accessKey: process.env.ACCESS_KEY,
+ secretKey: process.env.SECRET_KEY,
  nonce: new Date().getTime().toString()
 };
 

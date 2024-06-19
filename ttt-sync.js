@@ -1,10 +1,25 @@
+require('dotenv').config();
 const https = require('https');
 
 const authUtils = require('./utils/auth-utils');
 const { serverConfig, authConfig } = authUtils;
+const nonceGenerator = (() => {
+  let lastTimestamp = 0;
+  let counter = 0;
+  return () => {
+    const now = Date.now();
+    if (now === lastTimestamp) {
+      counter++;
+    } else {
+      counter = 0;
+      lastTimestamp = now;
+    }
+    return `${now}${counter.toString().padStart(6, '0')}`;
+  };
+})();
 
 const translationData = {
-  fieldId: '1',
+  fieldId: '414',
   text: [
     'This is DOKODEMO Door bulletin board. You can post any discussion here such as promoting and announcing Events and Worlds, recruiting video editors, asking questions regarding functions, etc.'
   ],
@@ -12,31 +27,10 @@ const translationData = {
   targetLang: 'zh-TW',
   contractId: authConfig.contractId,
 };
-
-/**
- * Gets translation result as text.
- *
- * @param {object} serverConfig Server configurations.
- * @param {string} serverConfig.protocol Server protocol.
- * @param {string} serverConfig.hostname Server hostname.
- * @param {number} serverConfig.port Server listening port.
- * @param {object} authConfig Authentication configurations.
- * @param {string} authConfig.accessKey Access key.
- * @param {string} authConfig.secretKey Secret key.
- * @param {object} translationData Translation data.
- * @param {string} translationData.field Professional field ID.
- * @param {string[]} translationData.text Texts to be translated.
- * @param {string} translationData.sourceLang Language code of language of
- *                                            original text.
- * @param {string} translationData.targetLang Language code of language of
- *                                            translated text.
- *
- * @returns {Promise<string>} A Promise resolved with the server response.
- */
 const getTextResult = (serverConfig, authConfig, translationData) => {
   const path = '/api/v1/translate';
   // We use UNIX time (in milliseconds) as nonce here.
-  const nonce = `${Math.floor(Date.now())}`;
+  const nonce = nonceGenerator();
   const signature = authUtils.generateSignature(
     path,
     authConfig.secretKey,
